@@ -45,15 +45,22 @@ void test_triangles() {
   int ETM; // calculating Middle-Bottom
   int EMB; // calculating Middle-Bottom
 
+  int ETBz; // calculating Top-Bottom
+  int ETMz; // calculating Middle-Bottom
+  int EMBz; // calculating Middle-Bottom
+
   // temp error holder for comparisons
   int E2L;
   int E2R;
-
+  
+  int E2Lz;
+  int E2Rz;
+  
   POINT top;
   POINT middle;
   POINT bottom;
 
-  int YL,YR, XL, XR;
+  int YL,YR, XL, XR, ZL, ZR;
   int setup_time;
   int draw_time;
   
@@ -90,30 +97,30 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
 
   DTM.x = top.x > middle.x ? top.x - middle.x : middle.x - top.x;
   DTM.y = middle.y - top.y;
-  //DTM.z =
+  DTM.z = top.x > middle.z ? top.z - middle.z : middle.z - top.z;
   
   DTB.x = top.x > bottom.x ? top.x - bottom.x : bottom.x - top.x;
   DTB.y = bottom.y-top.y;
-  //DTB.z =
+  DTB.z = top.z > bottom.z ? top.z - bottom.z : bottom.z - top.z;
   
   DMB.x = middle.x > bottom.x ? middle.x - bottom.x : bottom.x - middle.x;
   DMB.y = bottom.y - middle.y;
-  //DMB.z = 
+  DMB.z = middle.z > bottom.z ? middle.z - bottom.z : bottom.z - middle.z;
   
   
   // Calculate steps from start to destination
   
   STM.x = (top.x < middle.x) ? 1 : -1; 
   STM.y = 1;
-  //STB.z =   
+  STM.z = (top.z < middle.z) ? 1 : -1; 
   
   STB.x = (top.x < bottom.x) ? 1 : -1;
   STB.y = 1;
-  //STB.z = 
+  STB.z = (top.z < bottom.z) ? 1 : -1;
   
   SMB.x = (middle.x < bottom.x) ? 1 : -1;
   SMB.y = 1; //<>//
-  //SMB.z =
+  SMB.z = (middle.z < bottom.z) ? 1 : -1;
   
   
   // calculate starting error
@@ -124,11 +131,19 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
   ETB = (DTB.x > DTB.y ? DTB.x : -DTB.y) >> 1;
   EMB = (DMB.x > DMB.y ? DMB.x : -DMB.y) >> 1;
 
+  ETMz = (DTM.z > DTM.y ? DTM.z : -DTM.y) >> 1;
+  ETBz = (DTB.z > DTB.y ? DTB.z : -DTB.y) >> 1;
+  EMBz = (DMB.z > DMB.y ? DMB.z : -DMB.y) >> 1;
+  
+  
+
   // triangle always starts at a single point regardless of direction
    YL = top.y;
    YR = top.y;
    XL = top.x;
    XR = top.x; //<>//
+   ZL = top.z;
+   ZR = top.z;
    
   text("SETUP TIME: " + (millis() - setup_time), 850,60);
   draw_time = millis();
@@ -143,20 +158,30 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
      for(;;){
        
         if(YL == YR) {
-              drawSLine(XL, XR, 0, 0, YL);
+              drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= middle.y) break;
         } 
         E2L = ETB;
         E2R = ETM;
+        
+        E2Lz = ETBz;
+        E2Rz = ETMz;
+        
         // if the left line is not matching the right then increment the equation until it matches
         if(YL <= YR) {
             if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
             if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
+            
+            if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
+            if (E2Lz < DTB.y) { ETBz += DTB.z;}
         }
         // if the right line is not matching the left then increment the equation until it matches
         else if (YL > YR) {
             if (E2R >-DTM.x) { ETM -= DTM.y; XR += STM.x; }
-            if (E2R < DTM.y) { ETM += DTM.x; YR += STM.y; }          
+            if (E2R < DTM.y) { ETM += DTM.x; YR += STM.y; }
+            
+            if (E2Rz >-DTM.z) { ETMz -= DTM.y; ZR += STM.z; }
+            if (E2Rz < DTM.y) { ETMz += DTM.z;}     
         }
         
 
@@ -172,7 +197,7 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
      for(;;){
        
         if(YL == YR) {
-              drawSLine(XL, XR, 0, 0, YL);
+              drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= bottom.y) break;
 
       } 
@@ -182,16 +207,19 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
         if(YL <= YR) {
             if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
             if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
+            
+            if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
+            if (E2Lz < DTB.y) { ETBz += DTB.z;}
         }
         // if the right line is not matching the left then increment the equation until it matches
         else if (YL > YR) {
             if (E2R >-DMB.x) { EMB -= DMB.y; XR += SMB.x; }
-            if (E2R < DMB.y) { EMB += DMB.x; YR += SMB.y; }          
-        }
-        
+            if (E2R < DMB.y) { EMB += DMB.x; YR += SMB.y; }   
+ 
+            if (E2Rz >-DMB.z) { EMBz -= DMB.y; ZR += SMB.z; }
+            if (E2Rz < DMB.y) { EMBz += DMB.z;}    
+        }  
      }
-
-    
   }
   
   
@@ -206,7 +234,7 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
      for(;;){
        
         if(YL == YR) {
-              drawSLine(XL, XR, 0, 0, YL);
+              drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= middle.y) break;
       } 
         E2L = ETM;
@@ -215,11 +243,17 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
         if(YL <= YR) {
             if (E2L >-DTM.x) { ETM -= DTM.y; XL += STM.x; }
             if (E2L < DTM.y) { ETM += DTM.x; YL += STM.y; }
+            
+            if (E2Lz >-DTM.z) { ETMz -= DTM.y; ZL += STM.z; }
+            if (E2Lz < DTM.y) { ETMz += DTM.z;}
         }
         // if the right line is not matching the left then increment the equation until it matches
         else if (YL > YR) {
             if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
-            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }          
+            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; } 
+            
+            if (E2Rz >-DTB.z) { ETBz -= DTB.y; ZR += STB.z; }
+            if (E2Rz < DTB.y) { ETBz += DTB.z;}   
         }
         
 
@@ -235,7 +269,7 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
      for(;;){
        
         if(YL == YR) {
-              drawSLine(XL, XR, 0, 0, YL);
+              drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= bottom.y) break;
       } 
         E2L = EMB;
@@ -244,11 +278,17 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
         if(YL <= YR) {
             if (E2L >-DMB.x) { EMB -= DMB.y; XL += SMB.x; }
             if (E2L < DMB.y) { EMB += DMB.x; YL += SMB.y; }
+            
+            if (E2Lz >-DMB.z) { EMBz -= DMB.y; ZL += SMB.z; }
+            if (E2Lz < DMB.y) { EMBz += DMB.z;}      
         }
         // if the right line is not matching the left then increment the equation until it matches
         else if (YL > YR) {
             if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
-            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }          
+            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }      
+            
+            if (E2Rz >-DTB.z) { ETBz -= DTB.y; ZR += STB.z; }
+            if (E2Rz < DTB.y) { ETBz += DTB.z;} 
         }
         
      }
@@ -261,17 +301,19 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
 
   void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
     
-      for (; left_x <= right_x;left_x++) {
+      
+      for (int x = left_x; x <= right_x; x++) {
         
-         //float gradient_z = left_x != right_x ? (x - left_x) / float(right_x - left_x) : 1.0;
-         //print("gz: " + gradient_z);
-         //int z = int(float(right_z-left_z) * gradient_z) + left_z;
-         //print(" " + z + " ");
-         //print(" dbi: " + (x + y * SCREEN_WIDTH) + " ");
-         //if (z <= depth_buffer[x + y * SCREEN_WIDTH]) {
+         float gradient_z = left_x != right_x ? (x - left_x) / float(right_x - left_x) : 1.0;
+         print("gz: " + gradient_z);
+         int z = int(float(right_z-left_z) * gradient_z) + left_z;
+         print(" " + z + " ");
+         print(" dbi: " + (x + y * SCREEN_WIDTH) + " ");
+         if (z <= depth_buffer[x + y * SCREEN_WIDTH]) {
+             
              point(left_x,y);
-         //    depth_buffer[x + y * SCREEN_WIDTH] = z;
-         //}
+             depth_buffer[x + y * SCREEN_WIDTH] = z;
+         }
       } 
   }
   

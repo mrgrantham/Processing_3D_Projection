@@ -1,19 +1,47 @@
 boolean pauseFlag = false;
 
+public class POINT {
+    public int x;
+    public int y;
+    public int z;
+    
+    POINT(){
+     x=0;
+     y=0;
+     z=0;
+    }
+    
+    POINT(int nx,int ny, int nz){
+      x =nx;
+      y = ny;
+      z = nz;
+    }
+}
 
-
+public class TRIANGLE_POINTS {
+    public POINT P1;
+    public POINT P2;
+    public POINT P3;
+    
+    TRIANGLE_POINTS() {
+    }
+    
+    TRIANGLE_POINTS(POINT np1, POINT np2, POINT np3) {
+       P1 = np1;
+       P2 = np2;
+       P3 = np3;
+    }
+}
 
 // triangle test
 TRIANGLE_POINTS test_triangle_rot1 = new TRIANGLE_POINTS();
 
-POINT P1 = new POINT(550,700,0);
-POINT P2 = new POINT(500,800,0);
-POINT P3 = new POINT(600,900,0);
+POINT P1 = new POINT(550,500,0);
+POINT P2 = new POINT(500,600,0);
+POINT P3 = new POINT(600,800,0);
 
 TRIANGLE_POINTS test_triangle1 = new TRIANGLE_POINTS(P1,P2,P3);
-POINT _2Daxis = new POINT(550,800,0);
-TRIANGLE_POINTS triangle_array[] = new TRIANGLE_POINTS[12];
-TRIANGLE_POINTS temp_triangle_rot[] = new TRIANGLE_POINTS[12];
+POINT _2Daxis = new POINT(550,600,0);
 
 POINT camera;
 POINT viewportPlane[] = new POINT[3];
@@ -35,23 +63,23 @@ void setup() {
      stroke(255);
      strokeWeight(2); 
      
-    camera =  new POINT(128  ,96  , -170);
+    camera =  new POINT(128  ,96  , -100);
     viewportPlane[0] = new POINT(0,   0,   0);
     viewportPlane[1] = new POINT(255, 0,   0);
     viewportPlane[2] = new POINT(0,   191,  0);
     
     
     // stuctures for 3d Cube and 2D representation
-    _3Daxis =  new POINT(128, 96, 138);
+    _3Daxis =  new POINT(128, 96, 128);
     
-    _3Dreal[0] = new POINT(68  ,36  ,98 ); // front top left *
-    _3Dreal[1] = new POINT(188 ,36  ,98 ); // front top right
-    _3Dreal[2] = new POINT(68  ,156 ,98 ); // front bottom left
-    _3Dreal[3] = new POINT(188 ,156 ,98 ); // front bottom right *
-    _3Dreal[4] = new POINT(68  ,36  ,218); // back top left
-    _3Dreal[5] = new POINT(188 ,36  ,218); // back top right
-    _3Dreal[6] = new POINT(68  ,156 ,218); // back bottom left
-    _3Dreal[7] = new POINT(188 ,156 ,218); // back bottom right
+    _3Dreal[0] = new POINT(98  ,66  ,98 ); // front top left *
+    _3Dreal[1] = new POINT(158 ,66  ,98 ); // front top right
+    _3Dreal[2] = new POINT(98  ,126 ,98 ); // front bottom left
+    _3Dreal[3] = new POINT(158 ,126 ,98 ); // front bottom right *
+    _3Dreal[4] = new POINT(98  ,66  ,158); // back top left
+    _3Dreal[5] = new POINT(158 ,66  ,158); // back top right
+    _3Dreal[6] = new POINT(98  ,126 ,158); // back bottom left
+    _3Dreal[7] = new POINT(158 ,126 ,158); // back bottom right
                                 
     for (int i = 0; i < 8; i++) {
       _3Dflattened_curr[i] = new POINT(0,0,0);
@@ -59,11 +87,8 @@ void setup() {
       _3Drotated[i] = new POINT(0,0,0);
     }
     
-    for (int tri = 0; tri < 12; tri++) {
-       temp_triangle_rot[tri] = new TRIANGLE_POINTS(); 
-    }
-    
     // triangles for rasterization
+    TRIANGLE_POINTS triangle_array[] = new TRIANGLE_POINTS[12];
     triangle_array[0 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[2]);
     triangle_array[1 ] = new TRIANGLE_POINTS(_3Dflattened_curr[3],_3Dflattened_curr[1],_3Dflattened_curr[2]);
     triangle_array[2 ] = new TRIANGLE_POINTS(_3Dflattened_curr[4],_3Dflattened_curr[5],_3Dflattened_curr[6]);
@@ -80,7 +105,7 @@ void setup() {
 }
 
 void keyPressed() {
-//   print("KEY PRESSED " + key);
+   print("KEY PRESSED " + key);
     if(key == 'm') camera.x++;
     else if(key == 'n') camera.x--;
     else if(key == 'w') camera.z++;
@@ -105,6 +130,7 @@ void keyPressed() {
 void draw() {
   if (!pauseFlag) {
   background(0);
+  println("ITERATION " + iteration);
   iteration++;
   
   stroke(0);
@@ -155,15 +181,6 @@ void draw() {
   // draw viewport
   drawTopLine(viewportPlane[0],viewportPlane[1]);
   drawSideLine(viewportPlane[0],viewportPlane[2]);
-
-  for (int tri = 0; tri < 12; tri++) {
-     stroke(0,0,200);
-     strokeWeight(1);
-     
-     //drawFilledTriangle(temp_triangle_rot[tri]);
-     stroke(255);
-     strokeWeight(2);
-  }
 
 
   
@@ -233,15 +250,8 @@ void update() {
         
         _3Dflattened_curr[i] = flatten(temp_rotate);
     }
-  
-  
-    // update the rotation of the triangles
-    for (int tri = 0; tri < 12 ; tri++) {
-      temp_triangle_rot[tri].P1 = rotate2D(_3Daxis,triangle_array[tri].P1,current_rad);
-      temp_triangle_rot[tri].P2 = rotate2D(_3Daxis,triangle_array[tri].P2,current_rad);
-      temp_triangle_rot[tri].P3 = rotate2D(_3Daxis,triangle_array[tri].P3,current_rad);
-    }
-    //println("incrementing: " + current_rad);
+
+    println("incrementing: " + current_rad);
     inc_radians();
 
 }
@@ -277,7 +287,7 @@ void inc_radians() {
 
 }
 
-POINT topOrigin = new POINT(500,450,0);
+POINT topOrigin = new POINT(500,600,0);
 POINT sideOrigin = new POINT(500,0,0);
 
 void drawline(POINT p1, POINT p2){
@@ -300,7 +310,119 @@ void drawTopLine(POINT value1, POINT value2) {
 
 }
 
+void test_triangles() {
+  println("_2Daxis: X" + _2Daxis.x + " Y" + _2Daxis.y + " Test_triangle P1: X:" + test_triangle1.P1.x + " Y:" + test_triangle1.P1.y + " current rad: " + current_rad);
+    test_triangle_rot1.P1 = rotate2D(_2Daxis,test_triangle1.P1,current_rad);
+    test_triangle_rot1.P2 = rotate2D(_2Daxis,test_triangle1.P2,current_rad);
+    test_triangle_rot1.P3 = rotate2D(_2Daxis,test_triangle1.P3,current_rad);
+    
+    stroke(0,255,100);
+    drawline(test_triangle_rot1.P1,test_triangle_rot1.P3);
+    drawline(test_triangle_rot1.P1,test_triangle_rot1.P2);
+    drawline(test_triangle_rot1.P2,test_triangle_rot1.P3);
+    
+    stroke(255,0,0);
+    strokeWeight(1);
+    drawFilledTriangle(test_triangle_rot1);
+    strokeWeight(2);
+    stroke(255);
+}
 
+void drawFilledTriangle(TRIANGLE_POINTS triangle) {
+  POINT top;
+  POINT middle;
+  POINT bottom;
+  
+  if(triangle.P1.y < triangle.P2.y) {
+      top = triangle.P1;
+      middle = triangle.P2;
+  } else {
+     top = triangle.P2; 
+     middle = triangle.P1;
+  }
+  
+  if(triangle.P3.y < top.y) {
+      bottom = middle;
+      middle = top;
+      top = triangle.P3; 
+  } else {
+      if(middle.y < triangle.P3.y) {
+         bottom = triangle.P3;
+      } else {
+         bottom = middle;
+         middle = triangle.P3;
+      }
+
+  }
+  
+    float dtop_bottom, dtop_middle;
+  
+  if (middle.y - top.y > 0) {
+     dtop_middle = float(middle.x-top.x) / float(middle.y - top.y);
+  } else {
+      dtop_middle = 0.0;
+  }
+  
+  if (bottom.y - top.y > 0) {
+     dtop_bottom = (bottom.x - top.x) / (bottom.y - top.y); 
+  } else {
+     dtop_bottom= 0.0; 
+  }
+  
+  // Case with middle point to the right  on triangle
+  
+  if (dtop_middle > dtop_bottom) {
+            for (int y = top.y; y <= bottom.y; y++)
+        {
+            if (y < middle.y)
+            {
+                drawScanLine(y, top, bottom, top, middle);
+            }
+            else
+            {
+                drawScanLine(y, top, bottom, middle, bottom);
+            }
+        }
+    
+  }
+  
+  
+  // Case with middle point on left side of triangle
+  else {
+    
+            for (int y = (int)top.y; y <= (int)bottom.y; y++)
+        {
+            if (y < middle.y)
+            {
+                drawScanLine(y, top, middle, top, bottom);
+            }
+            else
+            {
+                drawScanLine(y, middle, bottom, top, bottom);
+            }
+        }
+    
+  }
+  
+  
+}
+  
+  // determines where to draw the line based on the space between the x points on two sides of the triangle given a particular y coordinate
+  void drawScanLine(int y, POINT a, POINT b, POINT c, POINT d) {
+  
+      float gradient1  = a.y != b.y ? (y - a.y) / (b.y - a.y) : 1;
+      float gradient2 = c.y != d.y ? (y - c.y) / (d.y - c.y) : 1;
+      
+      int left_x  = int(float(b.x-a.x) * gradient1) + a.x; // this assumes that the point passed as "a" was the highest of a,b
+      int right_x = int(float(d.x-c.x) * gradient2) + c.x; // this assumes that the point passed as "c" was the highest of c,d
+   
+      for (int x = left_x; x <= right_x;x++) {
+         point(x,y);
+      }
+   
+    
+  }
+  
 
   
 

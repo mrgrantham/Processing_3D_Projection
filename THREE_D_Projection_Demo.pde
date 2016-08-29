@@ -170,7 +170,9 @@ void draw() {
      stroke(tri,(tri*10),(tri*12) + 100);
      strokeWeight(1);
      
-     drawFilledTriangle(triangle_array[tri]);
+     //drawFilledTriangle(triangle_array[tri]);
+     drawFilledTriangleBresenham(triangle_array[tri]);
+
      
 
   }

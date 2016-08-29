@@ -106,29 +106,41 @@ void drawFilledTriangle(TRIANGLE_POINTS triangle) {
   
   // determines where to draw the line based on the space between the x points on two sides of the triangle given a particular y coordinate
   void drawScanLine(int y, POINT a, POINT b, POINT c, POINT d) {
-  print("SCANLINE A (" + nfs(a.x,3) + "," + nfs(a.y,3) + "," + nfs(a.z,3) + 
-                          ") B (" + nfs(b.x,3) + "," + nfs(b.y,3) + "," + nfs(b.z,3) + 
-                          ") C (" + nfs(c.x,3) + "," + nfs(c.y,3) + "," + nfs(c.z,3) +
-                          ") D (" + nfs(d.x,3) + "," + nfs(d.y,3) + "," + nfs(d.z,3) +") \n");   
+  //print("SCANLINE A (" + nfs(a.x,3) + "," + nfs(a.y,3) + "," + nfs(a.z,3) + 
+  //                        ") B (" + nfs(b.x,3) + "," + nfs(b.y,3) + "," + nfs(b.z,3) + 
+  //                        ") C (" + nfs(c.x,3) + "," + nfs(c.y,3) + "," + nfs(c.z,3) +
+  //                        ") D (" + nfs(d.x,3) + "," + nfs(d.y,3) + "," + nfs(d.z,3) +") \n");   
       float gradient1  = a.y != b.y ? float(y - a.y) / float(b.y - a.y) : 1;
       float gradient2 = c.y != d.y ? float(y - c.y) / float(d.y - c.y) : 1;
       
-      print("grad1: " + nfc(gradient1,3) + " grad 2: " + nfc(gradient2,3) + "\t\t");
+      //print("grad1: " + nfc(gradient1,3) + " grad 2: " + nfc(gradient2,3) + "\t\t");
       int left_x  = int(float(b.x-a.x) * gradient1) + a.x; // this assumes that the point passed as "a" was the highest of a,b
       int right_x = int(float(d.x-c.x) * gradient2) + c.x; // this assumes that the point passed as "c" was the highest of c,d
+      
+      int left_z = int(float(b.z-a.z) * gradient1) + a.z; // this assumes that the point passed as "c" was the highest of c,d
+      int right_z = int(float(d.z-c.z) * gradient2) + c.z; // this assumes that the point passed as "c" was the highest of c,d
+
+      
+      
       if (left_x > right_x) {
-        /*
-          int temp = left_x;
-          left_x = right_x;
-          right_x = temp;
-          */
+
           pauseFlag = true;
-          print("\t\t::::AUTO-PAUSING::::\t\t");
+          //print("\t\t::::AUTO-PAUSING::::\t\t");
       }
-      println("left_x: " + left_x + " right_x: " + right_x);
+      //print("left_x: " + left_x + " right_x: " + right_x + " left_z: " + left_z + " right_z: " + right_z + "  ");
       for (int x = left_x; x <= right_x;x++) {
-         point(x,y);
+        
+         float gradient_z = left_x != right_x ? (x - left_x) / float(right_x - left_x) : 1.0;
+         //print("gz: " + gradient_z);
+         int z = int(float(right_z-left_z) * gradient_z) + left_z;
+         //print(" " + z + " ");
+         //print(" dbi: " + (x + y * SCREEN_WIDTH) + " ");
+         if (z <= depth_buffer[x + y * SCREEN_WIDTH]) {
+             point(x,y);
+             depth_buffer[x + y * SCREEN_WIDTH] = z;
+         }
       }
+      print("\n");
    
     
   }

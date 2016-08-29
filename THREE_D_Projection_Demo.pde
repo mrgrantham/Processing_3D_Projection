@@ -53,7 +53,7 @@ int FPS = 0;
 void setup() {
   then = millis();
     size(1000,1000);
-    
+    noSmooth();
     
      noFill();
      stroke(255);
@@ -150,6 +150,7 @@ void draw() {
   }
 
   stroke(255);
+  noFill();
   rect(0, 0, 256, 192);
   update();
   // draw cube
@@ -275,8 +276,8 @@ POINT flatten( POINT _3Dpoint){
     D.y = _3Dpoint.y - camera.y;
     D.z = _3Dpoint.z - camera.z;
 
-    _2Dpoint.x = int(float(-camera.z * D.x) / float(D.z));
-    _2Dpoint.y = int(float(-camera.z * D.y) / float(D.z));
+    _2Dpoint.x = int(-camera.z * D.x / float(D.z));
+    _2Dpoint.y = int(-camera.z * D.y / float(D.z));
     _2Dpoint.z = D.z;
     
     _2Dpoint.x += camera.x;

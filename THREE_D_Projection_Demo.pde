@@ -1,8 +1,8 @@
 boolean pauseFlag = false;
 
-int MAX_DEPTH = 32768;
-int SCREEN_WIDTH = 300; // change to 256 for the actual NDS port
-int SCREEN_HEIGHT = 300; // 
+int MAX_DEPTH = 16384;
+int SCREEN_WIDTH = 256; // change to 256 for the actual NDS port
+int SCREEN_HEIGHT = 192; //
 int depth_buffer[] = new int[SCREEN_WIDTH*SCREEN_HEIGHT];;
 
 
@@ -54,21 +54,21 @@ void setup() {
   then = millis();
     size(1000,1000);
     noSmooth();
-    
+
      noFill();
      stroke(255);
-     strokeWeight(2); 
-     
+     strokeWeight(2);
+
     clear_depth_buffer();
     camera =  new POINT(128  ,96  , -170);
     viewportPlane[0] = new POINT(0,   0,   0);
     viewportPlane[1] = new POINT(255, 0,   0);
     viewportPlane[2] = new POINT(0,   191,  0);
-    
-    
+
+
     // stuctures for 3d Cube and 2D representation
     _3Daxis =  new POINT(128, 96, 138);
-    
+
     _3Dreal[0] = new POINT(68  ,36  ,98 ); // front top left *
     _3Dreal[1] = new POINT(188 ,36  ,98 ); // front top right
     _3Dreal[2] = new POINT(68  ,156 ,98 ); // front bottom left
@@ -77,19 +77,19 @@ void setup() {
     _3Dreal[5] = new POINT(188 ,36  ,218); // back top right
     _3Dreal[6] = new POINT(68  ,156 ,218); // back bottom left
     _3Dreal[7] = new POINT(188 ,156 ,218); // back bottom right
-                                
+
     for (int i = 0; i < 8; i++) {
       _3Dflattened_curr[i] = new POINT(0,0,0);
       _3Dflattened_prev[i] = new POINT(0,0,0);
       _3Drotated[i] = new POINT(0,0,0);
     }
-    
-    for (int tri = 0; tri < 12; tri++) {
-       temp_triangle_rot[tri] = new TRIANGLE_POINTS(); 
-    }
-    
 
-    
+    for (int tri = 0; tri < 12; tri++) {
+       temp_triangle_rot[tri] = new TRIANGLE_POINTS();
+    }
+
+
+
     // triangles for rasterization
     triangle_array[0 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[2]);
     triangle_array[1 ] = new TRIANGLE_POINTS(_3Dflattened_curr[3],_3Dflattened_curr[1],_3Dflattened_curr[2]);
@@ -116,7 +116,7 @@ void keyPressed() {
     else if (key == 'd') camera.y++;
     else if (key == 'p') {
         if (pauseFlag) pauseFlag = false;
-        else pauseFlag = true;  
+        else pauseFlag = true;
     }
     else if(key == CODED) {
         if(keyCode == UP     ) _3Daxis.y--;
@@ -131,7 +131,7 @@ void keyPressed() {
 
 void draw() {
   if (!pauseFlag) {
-  
+
   clear_depth_buffer();
   background(0);
   iteration++;
@@ -142,7 +142,7 @@ void draw() {
     //text("THEN: " + then + " NOW: " + now , 850,40);
 
 
-/*     
+/*
   stroke(0);
   // un draw old cube
   for (int i = 0; i < 12; i++) {
@@ -171,11 +171,11 @@ void draw() {
   for (int tri = 0; tri < 12; tri++) {
      stroke(tri,(tri*10),(tri*12) + 100);
      strokeWeight(1);
-     
+
      //drawFilledTriangle(triangle_array[tri]);
      drawFilledTriangleBresenham(triangle_array[tri]);
 
-     
+
 
   }
    stroke(255);
@@ -194,18 +194,18 @@ void draw() {
       drawTopLine(_3Drotated[i],camera);
   }
     stroke(255);
-    
+
   // draw cameras
   stroke(0,200,0);
   drawTop(camera);
   drawSide(camera);
   stroke(255);
-  
+
   int offset = 600;
    for (int i = 0 ; i < 8 ; i++) {
        int multiplier = i * 25;
-       text("P[",30,multiplier + offset);text(i,42,multiplier + offset); text("] = ",50,multiplier + offset);   
-       
+       text("P[",30,multiplier + offset);text(i,42,multiplier + offset); text("] = ",50,multiplier + offset);
+
        text("X: ",88,multiplier + offset);
        text(_3Dflattened_curr[i].x,100,multiplier + offset);
        text("Y: ",138,multiplier + offset);
@@ -234,11 +234,11 @@ void update() {
   //      temp_rotate = rotateY3D(_3Daxis,temp_rotate,current_rad);
   //      temp_rotate = rotateZ3D(_3Daxis,temp_rotate,current_rad);
         _3Drotated[i] = temp_rotate;
-        
-        
+
+
         _3Dflattened_curr[i] = flatten(temp_rotate);
     }
-    
+
     // update triangles for rasterization
     triangle_array[0 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[2]);
     triangle_array[1 ] = new TRIANGLE_POINTS(_3Dflattened_curr[3],_3Dflattened_curr[1],_3Dflattened_curr[2]);
@@ -252,8 +252,8 @@ void update() {
     triangle_array[9 ] = new TRIANGLE_POINTS(_3Dflattened_curr[7],_3Dflattened_curr[3],_3Dflattened_curr[5]);
     triangle_array[10] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[4],_3Dflattened_curr[2]);
     triangle_array[11] = new TRIANGLE_POINTS(_3Dflattened_curr[6],_3Dflattened_curr[4],_3Dflattened_curr[2]);
-  
-  
+
+
     // update the rotation of the triangles
     /*
     for (int tri = 0; tri < 12 ; tri++) {
@@ -280,10 +280,10 @@ POINT flatten( POINT _3Dpoint){
     _2Dpoint.x = int(-camera.z * D.x / float(D.z));
     _2Dpoint.y = int(-camera.z * D.y / float(D.z));
     _2Dpoint.z = D.z;
-    
+
     _2Dpoint.x += camera.x;
     _2Dpoint.y += camera.y;
-    _2Dpoint.z += camera.z;   
+    _2Dpoint.z += camera.z;
 
     return _2Dpoint;
 }
@@ -300,9 +300,9 @@ void inc_radians() {
 
 
 void clear_depth_buffer() {
- 
+
    for (int i = 0; i < depth_buffer.length; i++) {
        depth_buffer[i] = MAX_DEPTH;
    }
-  
+
 }

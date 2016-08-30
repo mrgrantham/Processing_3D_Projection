@@ -1,8 +1,8 @@
 boolean pauseFlag = false;
 
 int MAX_DEPTH = 32768;
-int SCREEN_WIDTH = 1000; // change to 256 for the actual NDS port
-int SCREEN_HEIGHT = 1000; // 
+int SCREEN_WIDTH = 300; // change to 256 for the actual NDS port
+int SCREEN_HEIGHT = 300; // 
 int depth_buffer[] = new int[SCREEN_WIDTH*SCREEN_HEIGHT];;
 
 
@@ -142,12 +142,13 @@ void draw() {
     //text("THEN: " + then + " NOW: " + now , 850,40);
 
 
-     
+/*     
   stroke(0);
   // un draw old cube
   for (int i = 0; i < 12; i++) {
       drawline(_3Dflattened_prev[line_pairs[i][0]],_3Dflattened_prev[line_pairs[i][1]]);
   }
+*/
 
   stroke(255);
   noFill();
@@ -217,7 +218,7 @@ void draw() {
    text("CAMERA Y: ",150, 850); text(camera.y,220,850);
    text("CAMERA Z: ",250, 850); text(camera.z,320,850);
 
-  test_triangles();
+  //test_triangles();
   }
 }
 

@@ -65,6 +65,7 @@ void test_triangles() {
   int draw_time;
 
 void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
+  //println("BEGIN drawFilledTriangleBresenham()");
   fill(0);
   rect(825,45,150,150);
   fill(255);
@@ -89,6 +90,9 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
   } else {
     bottom = triangle.P3;
   }
+  //println(  "TOP (" + nfs(top.x,3) + "," + nfs(top.y,3) + "," + nfs(top.z,3) +
+  //        ") MID (" + nfs(middle.x,3) + "," + nfs(middle.y,3) + "," + nfs(middle.z,3) +
+  //        ") BOT (" + nfs(bottom.x,3) + "," + nfs(bottom.y,3) + "," + nfs(bottom.z,3) + ") ");
 
 
 
@@ -142,40 +146,32 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
    XR = top.x;
    ZL = top.z;
    ZR = top.z;
-
   text("SETUP TIME: " + (millis() - setup_time), 850,60);
   draw_time = millis();
 
-  if(edge > 0) { // right pointing triangle
-    print("POINTING RIGHT TOP (" + nfs(top.x,3) + "," + nfs(top.y,3) + "," + nfs(top.z,3) +
-                          ") MID (" + nfs(middle.x,3) + "," + nfs(middle.y,3) + "," + nfs(middle.z,3) +
-                          ") BOT (" + nfs(bottom.x,3) + "," + nfs(bottom.y,3) + "," + nfs(bottom.z,3) + ") \n");
+  if(edge > 0) {  // right pointing triangle
+    //print("POINTING RIGHT TOP (" + nfs(top.x,3) + "," + nfs(top.y,3) + "," + nfs(top.z,3) +
+    //                      ") MID (" + nfs(middle.x,3) + "," + nfs(middle.y,3) + "," + nfs(middle.z,3) +
+    //                      ") BOT (" + nfs(bottom.x,3) + "," + nfs(bottom.y,3) + "," + nfs(bottom.z,3) + ") \n");
 
      // top half of triangle
      for(;;){
         if(YL == YR) {
-              //if(ZL < 0 || ZR < 0) {
-                println("RIGHT TOP XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
-              //  break;
-              //}
+              // println("RIGHT TOP XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= middle.y) break;
         }
         E2L = ETB;
         E2R = ETM;
-
         E2Lz = ETBz;
         E2Rz = ETMz;
-
-        // if the left line is not matching the right then increment the equation until it matches
-        if(YL <= YR) {
+        if(YL <= YR) {        // if the left line < right increment only left
             if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
             if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
             if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
             if (E2Lz < DTB.y) { ETBz += DTB.z;}
         }
-        // if the right line is not matching the left then increment the equation until it matches
-        else if (YL > YR) {
+        else if (YL > YR) {   // if the right line < left increment only
             if (E2R >-DTM.x) { ETM -= DTM.y; XR += STM.x; }
             if (E2R < DTM.y) { ETM += DTM.x; YR += STM.y; }
             if (E2Rz >-DTM.z) { ETMz -= DTM.y; ZR += STM.z; }
@@ -185,91 +181,82 @@ void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
      // bottom half of triangle
      YR = middle.y;
      XR = middle.x;
+     ZR = middle.z;
+
      for(;;){
         if(YL == YR) {
-          //if(ZL < 0 || ZR < 0) {
-            println("RIGHT BOTTOM XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
-          //  break;
-          //}
+          //println("RIGHT BOTTOM XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
           drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= bottom.y) break;
-      }
+        }
         E2L = ETB;
         E2R = EMB;
-        // if the left line is not matching the right then increment the equation until it matches
-        if(YL <= YR) {
+        E2Lz = ETBz;
+        E2Rz = EMBz;
+        if(YL <= YR) {        // if the left line < right increment only left
             if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
             if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
-
             if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
             if (E2Lz < DTB.y) { ETBz += DTB.z;}
         }
-        // if the right line is not matching the left then increment the equation until it matches
-        else if (YL > YR) {
+        else if (YL > YR) {   // if the right line < left increment only
             if (E2R >-DMB.x) { EMB -= DMB.y; XR += SMB.x; }
             if (E2R < DMB.y) { EMB += DMB.x; YR += SMB.y; }
-
             if (E2Rz >-DMB.z) { EMBz -= DMB.y; ZR += SMB.z; }
             if (E2Rz < DMB.y) { EMBz += DMB.z;}
         }
      }
   }
-  // Case with middle point on left side of triangle
-  else { //<>// //<>//
-        print("POINTING LEFT  TOP (" + nfs(top.x,3) + "," + nfs(top.y,3) + "," + nfs(top.z,3) +
-                          ") MID (" + nfs(middle.x,3) + "," + nfs(middle.y,3) + "," + nfs(middle.z,3) +
-                          ") BOT (" + nfs(bottom.x,3) + "," + nfs(bottom.y,3) + "," + nfs(bottom.z,3) + ") \n");
+  else { // Case with middle point on left side of triangle
+        //print("POINTING LEFT  TOP (" + nfs(top.x,3) + "," + nfs(top.y,3) + "," + nfs(top.z,3) +
+        //                  ") MID (" + nfs(middle.x,3) + "," + nfs(middle.y,3) + "," + nfs(middle.z,3) +
+        //                  ") BOT (" + nfs(bottom.x,3) + "," + nfs(bottom.y,3) + "," + nfs(bottom.z,3) + ") \n");
 
-     // top half of triangle //<>// //<>//
+     // top half of triangle
      for(;;){
         if(YL == YR) {
-            //  if(ZL < 0 || ZR < 0) {
-              println("LEFT TOP XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
-            //    break;
-              //}
+              //println("LEFT TOP XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= middle.y) break;
         }
         E2L = ETM;
         E2R = ETB;
-        // if the left line is not matching the right then increment the equation until it matches
-        if(YL <= YR) {
+        E2Lz = ETMz;
+        E2Rz = ETBz;
+        if(YL <= YR) {        // if the left line < right increment only left
             if (E2L >-DTM.x) { ETM -= DTM.y; XL += STM.x; }
             if (E2L < DTM.y) { ETM += DTM.x; YL += STM.y; }
             if (E2Lz >-DTM.z) { ETMz -= DTM.y; ZL += STM.z; }
             if (E2Lz < DTM.y) { ETMz += DTM.z;}
         }
-        // if the right line is not matching the left then increment the equation until it matches
-        else if (YL > YR) {
+        else if (YL > YR) {   // if the right line < left increment only
             if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
             if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }
-            if (E2Rz >-DTB.z) { ETBz -= DTB.y; ZR += STB.z; }
-            if (E2Rz < DTB.y) { ETBz += DTB.z;}
+            if (E2Rz >-DTB.z) { ETBz -= DTB.x; ZR += STB.z; }
+            if (E2Rz < DTB.x) { ETBz += DTB.z;}
         }
      }
      // bottom half of triangle
      YL = middle.y;
      XL = middle.x;
+     ZL = middle.z;
      for(;;){
         if(YL == YR) {
-              //if(ZL < 0 || ZR < 0) {
-                println("LEFT BOTTOM XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
-              //  break;
-              //}
+              //println("LEFT BOTTOM XL " + XL + " XR " + XR + " ZL " + ZL + " ZR " + ZR + " Y " + YL);
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= bottom.y) break;
         }
         E2L = EMB;
         E2R = ETB;
-        // if the left line is not matching the right then increment the equation until it matches
-        if(YL <= YR) {
+        E2Lz = EMBz;
+        E2Rz = ETBz;
+        if(YL <= YR) {        // if the left line < right increment only left
             if (E2L >-DMB.x) { EMB -= DMB.y; XL += SMB.x; }
             if (E2L < DMB.y) { EMB += DMB.x; YL += SMB.y; }
             if (E2Lz >-DMB.z) { EMBz -= DMB.y; ZL += SMB.z; }
             if (E2Lz < DMB.y) { EMBz += DMB.z;}
         }
-        // if the right line is not matching the left then increment the equation until it matches
-        else if (YL > YR) {
+        else if (YL > YR) {   // if the right line < left increment only
             if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
             if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }
             if (E2Rz >-DTB.z) { ETBz -= DTB.y; ZR += STB.z; }
@@ -292,7 +279,9 @@ int depthBufferIndex;
 
 void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
       if(left_z < 0 || right_z < 0) { //<>//
-        println(" left_Z: " + left_z + "right_Z: " + right_z);
+        println(" left_Z: " + left_z + " right_Z: " + right_z);
+        pauseFlag = true;  //<>//
+
         //return;
       }
       //println("STARTING DRAWSLINE()");
@@ -307,18 +296,24 @@ void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
       x=left_x;
       z=left_z;
 
-      println(" LeftX: " + left_x + " RightX: " + right_x + " LeftZ: " + left_z + " RightZ: " + right_z + " DX: " + DeltaX + " DZ: " + DeltaZ + " SX: " +StepX + " SZ: " + StepZ + " Error: " + Error);
+      //println(" LeftX: " + left_x + " RightX: " + right_x + " LeftZ: " + left_z + " RightZ: " + right_z + " DX: " + DeltaX + " DZ: " + DeltaZ + " SX: " +StepX + " SZ: " + StepZ + " Error: " + Error);
 
       for(;;) {
          if(z < 0) {
             println("Z went negative");
             //System.exit(1);
+            println(" LeftX: " + left_x + " RightX: " + right_x + " LeftZ: " + left_z + " RightZ: " + right_z +
+            " DX: " + DeltaX + " DZ: " + DeltaZ + " SX: " +StepX + " SZ: " + StepZ + " Error: " + Error +
+            " x: " + x + " z: " + z);
             pauseFlag = true;  //<>//
             break;
          }
          depthBufferIndex = x + (y * SCREEN_WIDTH); //<>//
          //print("LeftX: " + left_x + " RightX: " + right_x + "LeftZ: " + left_z + " RightZ: " + right_z + " DX: " + DeltaX + " DZ: " + DeltaZ + " SX: " +StepX + " SZ: " + StepZ + " Error: " + Error);
          //println(" db: " + depth_buffer[depthBufferIndex] + " x: " + x + " z: " + z  + " Error: " + Error);
+         //println(" LeftX: " + left_x + " RightX: " + right_x + " LeftZ: " + left_z + " RightZ: " + right_z +
+         //" DX: " + DeltaX + " DZ: " + DeltaZ + " SX: " +StepX + " SZ: " + StepZ + " Error: " + Error +
+         //" x: " + x + " z: " + z);
 
          if (z <= depth_buffer[depthBufferIndex]) {
              point(x,y);
@@ -425,7 +420,7 @@ void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
       if (left_x > right_x) {
 
           pauseFlag = true;
-          //print("\t\t::::AUTO-PAUSING::::\t\t");
+          println("\t\t::::AUTO-PAUSING::::\t\t");
       }
       //print("left_x: " + left_x + " right_x: " + right_x + " left_z: " + left_z + " right_z: " + right_z + "  ");
       for (int x = left_x; x <= right_x;x++) {

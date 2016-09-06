@@ -17,8 +17,8 @@ public class THREE_D_Projection_Demo extends PApplet {
 boolean pauseFlag = false;
 
 int MAX_DEPTH = 16384;
-int SCREEN_WIDTH = 256; // change to 256 for the actual NDS port
-int SCREEN_HEIGHT = 192; //
+int SCREEN_WIDTH = 1000; // change to 256 for the actual NDS port
+int SCREEN_HEIGHT = 1000; //
 int depth_buffer[] = new int[SCREEN_WIDTH*SCREEN_HEIGHT];;
 
 
@@ -155,16 +155,6 @@ public void draw() {
   now = millis();
   FPS = 1000/(now - then);
     text("FPS: " + FPS , 850,20);
-    //text("THEN: " + then + " NOW: " + now , 850,40);
-
-
-/*
-  stroke(0);
-  // un draw old cube
-  for (int i = 0; i < 12; i++) {
-      drawline(_3Dflattened_prev[line_pairs[i][0]],_3Dflattened_prev[line_pairs[i][1]]);
-  }
-*/
 
   stroke(255);
   noFill();
@@ -217,11 +207,10 @@ public void draw() {
   drawSide(camera);
   stroke(255);
 
-  int offset = 600;
+  int offset = 800;
    for (int i = 0 ; i < 8 ; i++) {
        int multiplier = i * 25;
        text("P[",30,multiplier + offset);text(i,42,multiplier + offset); text("] = ",50,multiplier + offset);
-
        text("X: ",88,multiplier + offset);
        text(_3Dflattened_curr[i].x,100,multiplier + offset);
        text("Y: ",138,multiplier + offset);
@@ -229,12 +218,12 @@ public void draw() {
        text("Z: ",188,multiplier + offset);
        text(_3Dflattened_curr[i].z,200,multiplier + offset);
    }
-   text("CURRENT RADIANS: ",50, 800); text(current_rad,170,800);
-   text("CAMERA X: ",50, 850); text(camera.x,120,850);
-   text("CAMERA Y: ",150, 850); text(camera.y,220,850);
-   text("CAMERA Z: ",250, 850); text(camera.z,320,850);
+   text("CURRENT RADIANS: ",50, 900); text(current_rad,170,900);
+   text("CAMERA X: ",50, 950); text(camera.x,120,950);
+   text("CAMERA Y: ",150, 950); text(camera.y,220,950);
+   text("CAMERA Z: ",250, 950); text(camera.z,320,950);
 
-  //test_triangles();
+  test_triangles();
   }
 }
 
@@ -246,7 +235,7 @@ public void update() {
         _3Dflattened_prev[i].z = _3Dflattened_curr[i].z;
 
         POINT temp_rotate = new POINT();
-        temp_rotate = rotateX3D(_3Daxis,_3Dreal[i],current_rad);
+        temp_rotate = rotateY3D(_3Daxis,_3Dreal[i],current_rad);
   //      temp_rotate = rotateY3D(_3Daxis,temp_rotate,current_rad);
   //      temp_rotate = rotateZ3D(_3Daxis,temp_rotate,current_rad);
         _3Drotated[i] = temp_rotate;
@@ -269,18 +258,7 @@ public void update() {
     triangle_array[10] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[4],_3Dflattened_curr[2]);
     triangle_array[11] = new TRIANGLE_POINTS(_3Dflattened_curr[6],_3Dflattened_curr[4],_3Dflattened_curr[2]);
 
-
-    // update the rotation of the triangles
-    /*
-    for (int tri = 0; tri < 12 ; tri++) {
-      temp_triangle_rot[tri].P1 = rotate2D(_3Daxis,triangle_array[tri].P1,current_rad);
-      temp_triangle_rot[tri].P2 = rotate2D(_3Daxis,triangle_array[tri].P2,current_rad);
-      temp_triangle_rot[tri].P3 = rotate2D(_3Daxis,triangle_array[tri].P3,current_rad);
-    }
-    */
-    //println("incrementing: " + current_rad);
     inc_radians();
-
 }
 
 public POINT flatten( POINT _3Dpoint){

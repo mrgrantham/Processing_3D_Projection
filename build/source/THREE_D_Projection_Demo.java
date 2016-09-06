@@ -232,12 +232,7 @@ public void draw() {
   noFill();
   rect(0, 0, 256, 192);
   update();
-  // draw cube
-  /*
-  for (int i = 0; i < 12; i++) {
-      drawline(_3Dflattened_curr[line_pairs[i][0]],_3Dflattened_curr[line_pairs[i][1]]);
-  }
-*/
+
   // draw cube top view
   for (int i = 0; i < 12; i++) {
       drawTopLine(_3Drotated[line_pairs[i][0]],_3Drotated[line_pairs[i][1]]);
@@ -247,6 +242,7 @@ public void draw() {
   drawTopLine(viewportPlane[0],viewportPlane[1]);
   drawSideLine(viewportPlane[0],viewportPlane[2]);
 
+  // draw arwing
   for (int tri = 0; tri < 24; tri++) {
      stroke(tri,(tri*5)+50,(tri*6) + 130);
      strokeWeight(1);
@@ -317,7 +313,9 @@ public void update() {
     }
 
     for (int tri=0;tri < 24;tri++) {
-        arwingTriangleArray[tri].set(arwingFlattenedVertexPoints[arwing1Faces[tri][0]],arwingFlattenedVertexPoints[arwing1Faces[tri][1]],arwingFlattenedVertexPoints[arwing1Faces[tri][2]]);
+        arwingTriangleArray[tri].set(   arwingFlattenedVertexPoints[arwing1Faces[tri][0]],
+                                        arwingFlattenedVertexPoints[arwing1Faces[tri][1]],
+                                        arwingFlattenedVertexPoints[arwing1Faces[tri][2]]);
     }
 
 
@@ -574,25 +572,24 @@ public void test_triangles() {
   POINT DTM = new POINT(); // calculating Middle-Bottom
   POINT DMB = new POINT(); // calculating Middle-Bottom
 
+  int DMaxTM;
+  int DMaxTB;
+  int DMaxMB;
+
+  int remainingSteps;
+
   POINT STB = new POINT(); // calculating Top-Bottom
   POINT STM = new POINT(); // calculating Middle-Bottom
   POINT SMB = new POINT(); // calculating Middle-Bottom
 
   // error calculation
-  int ETB; // calculating Top-Bottom
-  int ETM; // calculating Middle-Bottom
-  int EMB; // calculating Middle-Bottom
-
-  int ETBz; // calculating Top-Bottom
-  int ETMz; // calculating Middle-Bottom
-  int EMBz; // calculating Middle-Bottom
+  POINT ETB = new POINT(); // calculating Top-Bottom Error
+  POINT ETM = new POINT(); // calculating Middle-Bottom Error
+  POINT EMB = new POINT(); // calculating Middle-Bottom Error
 
   // temp error holder for comparisons
   int E2L;
   int E2R;
-
-  int E2Lz;
-  int E2Rz;
 
   POINT top;
   POINT middle;
@@ -649,6 +646,9 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
   DMB.y = bottom.y - middle.y;
   DMB.z = middle.z > bottom.z ? middle.z - bottom.z : bottom.z - middle.z;
 
+  DMaxTM = DTM.x > DTM.y ? (DTM.x > DTM.z ? DTM.x : DTM.z) : (DTM.y > DTM.z ? DTM.y : DTM.z);
+  DMaxTB = DTB.x > DTB.y ? (DTB.x > DTB.z ? DTB.x : DTB.z) : (DTB.y > DTB.z ? DTB.y : DTB.z);
+  DMaxMB = DMB.x > DMB.y ? (DMB.x > DMB.z ? DMB.x : DMB.z) : (DMB.y > DMB.z ? DMB.y : DMB.z);
 
   // Calculate steps from start to destination
 
@@ -666,16 +666,19 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
 
 
   // calculate starting error
-  // y will be negative and x will be positive
-  // initiale error is half of which ever metrics x or y
+  // initiale error is half of which ever metrics x, y or z
   // contributes most greatly to the slope
-  ETM = (DTM.x > DTM.y ? DTM.x : -DTM.y) >> 1;
-  ETB = (DTB.x > DTB.y ? DTB.x : -DTB.y) >> 1;
-  EMB = (DMB.x > DMB.y ? DMB.x : -DMB.y) >> 1;
+  ETM.x = DMaxTM >> 1;
+  ETM.y = DMaxTM >> 1;
+  ETM.z = DMaxTM >> 1;
 
-  ETMz = (DTM.z > DTM.y ? DTM.z : -DTM.y) >> 1;
-  ETBz = (DTB.z > DTB.y ? DTB.z : -DTB.y) >> 1;
-  EMBz = (DMB.z > DMB.y ? DMB.z : -DMB.y) >> 1;
+  ETB.x = DMaxTB >> 1;
+  ETB.y = DMaxTB >> 1;
+  ETB.z = DMaxTB >> 1;
+
+  EMB.x = DMaxMB >> 1;
+  EMB.y = DMaxMB >> 1;
+  EMB.z = DMaxMB >> 1;
 
   // triangle always starts at a single point regardless of direction
    YL = top.y;
@@ -699,21 +702,15 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= middle.y) break;
         }
-        E2L = ETB;
-        E2R = ETM;
-        E2Lz = ETBz;
-        E2Rz = ETMz;
         if(YL <= YR) {        // if the left line < right increment only left
-            if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
-            if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
-            if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
-            if (E2Lz < DTB.y) { ETBz += DTB.z;}
+            ETB.x -= DTB.x; if (ETB.x < 0) { ETB.x += DMaxTB; XL += STB.x; }
+            ETB.y -= DTB.y; if (ETB.y < 0) { ETB.y += DMaxTB; YL += STB.y; }
+            ETB.z -= DTB.z; if (ETB.z < 0) { ETB.z += DMaxTB; ZL += STB.z; }
         }
         else if (YL > YR) {   // if the right line < left increment only
-            if (E2R >-DTM.x) { ETM -= DTM.y; XR += STM.x; }
-            if (E2R < DTM.y) { ETM += DTM.x; YR += STM.y; }
-            if (E2Rz >-DTM.z) { ETMz -= DTM.y; ZR += STM.z; }
-            if (E2Rz < DTM.y) { ETMz += DTM.z;}
+            ETM.x -= DTM.x; if (ETM.x < 0) { ETM.x += DMaxTM; XR += STM.x; }
+            ETM.y -= DTM.y; if (ETM.y < 0) { ETM.y += DMaxTM; YR += STM.y; }
+            ETM.z -= DTM.z; if (ETM.z < 0) { ETM.z += DMaxTM; ZR += STM.z; }
         }
      }
      // bottom half of triangle
@@ -727,21 +724,15 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
           drawSLine(XL, XR, ZL, ZR, YL);
               if (YL >= bottom.y) break;
         }
-        E2L = ETB;
-        E2R = EMB;
-        E2Lz = ETBz;
-        E2Rz = EMBz;
         if(YL <= YR) {        // if the left line < right increment only left
-            if (E2L >-DTB.x) { ETB -= DTB.y; XL += STB.x; }
-            if (E2L < DTB.y) { ETB += DTB.x; YL += STB.y; }
-            if (E2Lz >-DTB.z) { ETBz -= DTB.y; ZL += STB.z; }
-            if (E2Lz < DTB.y) { ETBz += DTB.z;}
+            ETB.x -= DTB.x; if (ETB.x < 0) { ETB.x += DMaxTB; XL += STB.x; }
+            ETB.y -= DTB.y; if (ETB.y < 0) { ETB.y += DMaxTB; YL += STB.y; }
+            ETB.z -= DTB.z; if (ETB.z < 0) { ETB.z += DMaxTB; ZL += STB.z; }
         }
         else if (YL > YR) {   // if the right line < left increment only
-            if (E2R >-DMB.x) { EMB -= DMB.y; XR += SMB.x; }
-            if (E2R < DMB.y) { EMB += DMB.x; YR += SMB.y; }
-            if (E2Rz >-DMB.z) { EMBz -= DMB.y; ZR += SMB.z; }
-            if (E2Rz < DMB.y) { EMBz += DMB.z;}
+            EMB.x -= DMB.x; if (EMB.x < 0) { EMB.x += DMaxMB; XR += SMB.x; }
+            EMB.y -= DMB.y; if (EMB.y < 0) { EMB.y += DMaxMB; YR += SMB.y; }
+            EMB.z -= DMB.z; if (EMB.z < 0) { EMB.z += DMaxMB; ZR += SMB.z; }
         }
      }
   }
@@ -757,21 +748,15 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= middle.y) break;
         }
-        E2L = ETM;
-        E2R = ETB;
-        E2Lz = ETMz;
-        E2Rz = ETBz;
         if(YL <= YR) {        // if the left line < right increment only left
-            if (E2L >-DTM.x) { ETM -= DTM.y; XL += STM.x; }
-            if (E2L < DTM.y) { ETM += DTM.x; YL += STM.y; }
-            if (E2Lz >-DTM.z) { ETMz -= DTM.y; ZL += STM.z; }
-            if (E2Lz < DTM.y) { ETMz += DTM.z;}
+            ETM.x -= DTM.x; if (ETM.x < 0) { ETM.x += DMaxTM; XL += STM.x; }
+            ETM.y -= DTM.y; if (ETM.y < 0) { ETM.y += DMaxTM; YL += STM.y; }
+            ETM.z -= DTM.z; if (ETM.z < 0) { ETM.z += DMaxTM; ZL += STM.z; }
         }
         else if (YL > YR) {   // if the right line < left increment only
-            if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
-            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }
-            if (E2Rz >-DTB.z) { ETBz -= DTB.x; ZR += STB.z; }
-            if (E2Rz < DTB.x) { ETBz += DTB.z;}
+            ETB.x -= DTB.x; if (ETB.x < 0) { ETB.x += DMaxTB; XR += STB.x; }
+            ETB.y -= DTB.y; if (ETB.y < 0) { ETB.y += DMaxTB; YR += STB.y; }
+            ETB.z -= DTB.z; if (ETB.z < 0) { ETB.z += DMaxTB; ZR += STB.z; }
         }
      }
      // bottom half of triangle
@@ -784,21 +769,15 @@ public void drawFilledTriangleBresenham(TRIANGLE_POINTS triangle) {
               drawSLine(XL, XR, ZL, ZR, YL);
               if (YR >= bottom.y) break;
         }
-        E2L = EMB;
-        E2R = ETB;
-        E2Lz = EMBz;
-        E2Rz = ETBz;
         if(YL <= YR) {        // if the left line < right increment only left
-            if (E2L >-DMB.x) { EMB -= DMB.y; XL += SMB.x; }
-            if (E2L < DMB.y) { EMB += DMB.x; YL += SMB.y; }
-            if (E2Lz >-DMB.z) { EMBz -= DMB.y; ZL += SMB.z; }
-            if (E2Lz < DMB.y) { EMBz += DMB.z;}
+            EMB.x -= DMB.x; if (EMB.x < 0) { EMB.x += DMaxMB; XL += SMB.x; }
+            EMB.y -= DMB.y; if (EMB.y < 0) { EMB.y += DMaxMB; YL += SMB.y; }
+            EMB.z -= DMB.z; if (EMB.z < 0) { EMB.z += DMaxMB; ZL += SMB.z; }
         }
         else if (YL > YR) {   // if the right line < left increment only
-            if (E2R >-DTB.x) { ETB -= DTB.y; XR += STB.x; }
-            if (E2R < DTB.y) { ETB += DTB.x; YR += STB.y; }
-            if (E2Rz >-DTB.z) { ETBz -= DTB.y; ZR += STB.z; }
-            if (E2Rz < DTB.y) { ETBz += DTB.z;}
+            ETB.x -= DTB.x; if (ETB.x < 0) { ETB.x += DMaxTB; XR += STB.x; }
+            ETB.y -= DTB.y; if (ETB.y < 0) { ETB.y += DMaxTB; YR += STB.y; }
+            ETB.z -= DTB.z; if (ETB.z < 0) { ETB.z += DMaxTB; ZR += STB.z; }
         }
      }
   }
@@ -824,12 +803,13 @@ public void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
       }
       //println("STARTING DRAWSLINE()");
       DeltaX = left_x > right_x ? left_x - right_x : right_x - left_x;
-      DeltaZ = left_z > right_z ? left_z - right_z : right_z - left_z;
+      DeltaZ = -(left_z > right_z ? left_z - right_z : right_z - left_z);
 
       StepX = left_x < right_x ? 1 : -1;
       StepZ = left_z < right_z ? 1 : -1;
 
-      Error = (DeltaX > DeltaZ ? DeltaX : -DeltaZ) >> 1;
+      //Error = (DeltaX > DeltaZ ? DeltaX : -DeltaZ) >> 1;
+      Error = DeltaX + DeltaZ;
 
       x=left_x;
       z=left_z;
@@ -858,9 +838,9 @@ public void drawSLine(int left_x, int right_x, int left_z, int right_z, int y){
              depth_buffer[depthBufferIndex] = z;
          }
          if(x == right_x) {break;}
-         ErrorTmp = Error;
-         if (ErrorTmp >-DeltaX) { Error -= DeltaZ; x += StepX; }
-         if (ErrorTmp < DeltaZ) { Error += DeltaX; z += StepZ; }
+         ErrorTmp = 2 * Error;
+         if (ErrorTmp >= DeltaZ) { Error += DeltaZ; x += StepX; }
+         if (ErrorTmp <= DeltaX) { Error += DeltaX; z += StepZ; }
       }
   }
 

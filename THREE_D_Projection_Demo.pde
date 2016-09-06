@@ -216,12 +216,7 @@ void draw() {
   noFill();
   rect(0, 0, 256, 192);
   update();
-  // draw cube
-  /*
-  for (int i = 0; i < 12; i++) {
-      drawline(_3Dflattened_curr[line_pairs[i][0]],_3Dflattened_curr[line_pairs[i][1]]);
-  }
-*/
+
   // draw cube top view
   for (int i = 0; i < 12; i++) {
       drawTopLine(_3Drotated[line_pairs[i][0]],_3Drotated[line_pairs[i][1]]);
@@ -231,6 +226,7 @@ void draw() {
   drawTopLine(viewportPlane[0],viewportPlane[1]);
   drawSideLine(viewportPlane[0],viewportPlane[2]);
 
+  // draw arwing
   for (int tri = 0; tri < 24; tri++) {
      stroke(tri,(tri*5)+50,(tri*6) + 130);
      strokeWeight(1);
@@ -301,7 +297,9 @@ void update() {
     }
 
     for (int tri=0;tri < 24;tri++) {
-        arwingTriangleArray[tri].set(arwingFlattenedVertexPoints[arwing1Faces[tri][0]],arwingFlattenedVertexPoints[arwing1Faces[tri][1]],arwingFlattenedVertexPoints[arwing1Faces[tri][2]]);
+        arwingTriangleArray[tri].set(   arwingFlattenedVertexPoints[arwing1Faces[tri][0]],
+                                        arwingFlattenedVertexPoints[arwing1Faces[tri][1]],
+                                        arwingFlattenedVertexPoints[arwing1Faces[tri][2]]);
     }
 
 

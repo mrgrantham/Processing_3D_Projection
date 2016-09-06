@@ -11,10 +11,16 @@ public class TRIANGLE_POINTS {
        P2 = np2;
        P3 = np3;
     }
+
+    void set(POINT np1, POINT np2, POINT np3) {
+       P1 = np1;
+       P2 = np2;
+       P3 = np3;
+    }
 }
 
 void test_triangles() {
-  println("_2Daxis: X" + _2Daxis.x + " Y" + _2Daxis.y + " Test_triangle P1: X:" + test_triangle1.P1.x + " Y:" + test_triangle1.P1.y + " current rad: " + current_rad);
+  //println("_2Daxis: X" + _2Daxis.x + " Y" + _2Daxis.y + " Test_triangle P1: X:" + test_triangle1.P1.x + " Y:" + test_triangle1.P1.y + " current rad: " + current_rad);
     test_triangle_rot1.P1 = rotate2D(_2Daxis,test_triangle1.P1,current_rad);
     test_triangle_rot1.P2 = rotate2D(_2Daxis,test_triangle1.P2,current_rad);
     test_triangle_rot1.P3 = rotate2D(_2Daxis,test_triangle1.P3,current_rad);

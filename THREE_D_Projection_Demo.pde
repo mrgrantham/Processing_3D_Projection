@@ -32,6 +32,66 @@ POINT _3Drotated[] = new POINT[8];
 float current_rad = 0.0;
 int iteration = 0;
 
+// ARWING MODEL
+int arwing1Vertices[][] = {{100, 124, -73},
+{282, 81, -268},
+{60, 152, 150},
+{39, 152, -50},
+{172, 152, -73},
+{83, 152, -50},
+{39, 152, -50},
+{60, 242, -250},
+{39, 152, -50},
+{-100, 124, -73},
+{-282, 81, -268},
+{-60, 152, 150},
+{-39, 152, -50},
+{0, 174, -100},
+{0, 150, 365},
+{-172, 152, -73},
+{-83, 152, -50},
+{0, 193, -54},
+{-39, 152, -50},
+{-60, 242, -250},
+{-39, 152, -50},
+{0, 152, -50}};
+
+POINT arwingVertexPoints[] = new POINT[22]; // hold original vetex points
+POINT arwingRotatedVertexPoints[] = new POINT[22]; // holst points after rotation transformation
+POINT arwingFlattenedVertexPoints[] = new POINT[22]; // flatrtens points on viewport canvas
+
+POINT arwingTranslation = new POINT(128,260,600); // this is where the model should be positioned behind the viewport
+
+
+int arwing1Faces[][] = {{6, 2, 7},
+{2, 6, 5},
+{0, 4, 8},
+{6, 13, 17},
+{4, 1, 8},
+{14, 6, 17},
+{2, 5, 7},
+{4, 0, 1},
+{5, 6, 7},
+{8, 21, 17},
+{21, 8, 14},
+{0, 8, 1},
+{18, 19, 11},
+{11, 16, 18},
+{9, 20, 15},
+{18, 17, 13},
+{15, 20, 10},
+{14, 17, 18},
+{11, 19, 16},
+{15, 10, 9},
+{16, 19, 18},
+{20, 17, 21},
+{21, 14, 20},
+{9, 10, 20}};
+
+TRIANGLE_POINTS arwingTriFaces[] = new TRIANGLE_POINTS[24];
+//TRIANGLE_POINTS tempArwingRot[] = new TRIANGLE_POINTS[24];
+TRIANGLE_POINTS arwingTriangleArray[] = new TRIANGLE_POINTS[24];
+
 // line pairs for wireframe
 int [][] line_pairs =   {  {0,1},
                            {2,3},
@@ -60,15 +120,18 @@ void setup() {
      strokeWeight(2);
 
     clear_depth_buffer();
-    camera =  new POINT(128  ,96  , -170);
+    //camera =  new POINT(128  ,96  , -170);
+    camera =  new POINT(128  ,96  , -270);
     viewportPlane[0] = new POINT(0,   0,   0);
     viewportPlane[1] = new POINT(255, 0,   0);
     viewportPlane[2] = new POINT(0,   191,  0);
 
 
     // stuctures for 3d Cube and 2D representation
-    _3Daxis =  new POINT(128, 96, 138);
+//    _3Daxis =  new POINT(128, 96, 138);
+    _3Daxis =  new POINT(128, 96, 100);
 
+    /*
     _3Dreal[0] = new POINT(68  ,36  ,98 ); // front top left *
     _3Dreal[1] = new POINT(188 ,36  ,98 ); // front top right
     _3Dreal[2] = new POINT(68  ,156 ,98 ); // front bottom left
@@ -77,6 +140,7 @@ void setup() {
     _3Dreal[5] = new POINT(188 ,36  ,218); // back top right
     _3Dreal[6] = new POINT(68  ,156 ,218); // back bottom left
     _3Dreal[7] = new POINT(188 ,156 ,218); // back bottom right
+    */
 
     for (int i = 0; i < 8; i++) {
       _3Dflattened_curr[i] = new POINT(0,0,0);
@@ -89,6 +153,14 @@ void setup() {
     }
 
 
+    for (int vert = 0; vert < 22; vert++) {
+        arwingVertexPoints[vert] = new POINT(arwing1Vertices[vert][0],arwing1Vertices[vert][1],arwing1Vertices[vert][2]);
+        println("V " + arwingVertexPoints[vert].x + " " + arwingVertexPoints[vert].y + " " + arwingVertexPoints[vert].z);
+    }
+
+    for (int tri=0;tri < 24;tri++) {
+        arwingTriangleArray[tri] = new TRIANGLE_POINTS();
+    }
 
     // triangles for rasterization
     triangle_array[0 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[2]);
@@ -145,10 +217,11 @@ void draw() {
   rect(0, 0, 256, 192);
   update();
   // draw cube
+  /*
   for (int i = 0; i < 12; i++) {
       drawline(_3Dflattened_curr[line_pairs[i][0]],_3Dflattened_curr[line_pairs[i][1]]);
   }
-
+*/
   // draw cube top view
   for (int i = 0; i < 12; i++) {
       drawTopLine(_3Drotated[line_pairs[i][0]],_3Drotated[line_pairs[i][1]]);
@@ -158,14 +231,12 @@ void draw() {
   drawTopLine(viewportPlane[0],viewportPlane[1]);
   drawSideLine(viewportPlane[0],viewportPlane[2]);
 
-  for (int tri = 0; tri < 12; tri++) {
-     stroke(tri,(tri*10),(tri*12) + 100);
+  for (int tri = 0; tri < 24; tri++) {
+     stroke(tri,(tri*5)+50,(tri*6) + 130);
      strokeWeight(1);
-
      //drawFilledTriangle(triangle_array[tri]);
-     drawFilledTriangleBresenham(triangle_array[tri]);
-
-
+    // drawFilledTriangleBresenham(triangle_array[tri]);
+     drawFilledTriangleBresenham(arwingTriangleArray[tri]);
 
   }
    stroke(255);
@@ -213,34 +284,26 @@ void draw() {
 
 void update() {
 
-    for (int i=0;i < 8;i++){
-        _3Dflattened_prev[i].x = _3Dflattened_curr[i].x;
-        _3Dflattened_prev[i].y = _3Dflattened_curr[i].y;
-        _3Dflattened_prev[i].z = _3Dflattened_curr[i].z;
-
+    for (int i=0;i < 22; i++) {
         POINT temp_rotate = new POINT();
-        temp_rotate = rotateY3D(_3Daxis,_3Dreal[i],current_rad);
-  //      temp_rotate = rotateY3D(_3Daxis,temp_rotate,current_rad);
-  //      temp_rotate = rotateZ3D(_3Daxis,temp_rotate,current_rad);
-        _3Drotated[i] = temp_rotate;
+        POINT origin_point = new POINT();
+        temp_rotate = rotateX3D(origin_point,arwingVertexPoints[i],15*PI/16);
+        temp_rotate = rotateY3D(origin_point,temp_rotate,current_rad);
 
+        //println("V#  " + i);
+        //println("_3Daxis " + _3Daxis.x + " " + _3Daxis.y + " " + _3Daxis.z);
+        //println("_3Daxis " + _3Daxis.x + " " + _3Daxis.y + " " + _3Daxis.z);
+        //println("current_rad " + current_rad);
 
-        _3Dflattened_curr[i] = flatten(temp_rotate);
+        temp_rotate = Translate3D(arwingTranslation, temp_rotate);
+        arwingRotatedVertexPoints[i] = temp_rotate;
+        arwingFlattenedVertexPoints[i] = flatten(temp_rotate);
     }
 
-    // update triangles for rasterization
-    triangle_array[0 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[2]);
-    triangle_array[1 ] = new TRIANGLE_POINTS(_3Dflattened_curr[3],_3Dflattened_curr[1],_3Dflattened_curr[2]);
-    triangle_array[2 ] = new TRIANGLE_POINTS(_3Dflattened_curr[4],_3Dflattened_curr[5],_3Dflattened_curr[6]);
-    triangle_array[3 ] = new TRIANGLE_POINTS(_3Dflattened_curr[7],_3Dflattened_curr[5],_3Dflattened_curr[6]);
-    triangle_array[4 ] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[1],_3Dflattened_curr[4]);
-    triangle_array[5 ] = new TRIANGLE_POINTS(_3Dflattened_curr[5],_3Dflattened_curr[1],_3Dflattened_curr[4]);
-    triangle_array[6 ] = new TRIANGLE_POINTS(_3Dflattened_curr[2],_3Dflattened_curr[3],_3Dflattened_curr[6]);
-    triangle_array[7 ] = new TRIANGLE_POINTS(_3Dflattened_curr[7],_3Dflattened_curr[3],_3Dflattened_curr[6]);
-    triangle_array[8 ] = new TRIANGLE_POINTS(_3Dflattened_curr[1],_3Dflattened_curr[3],_3Dflattened_curr[5]);
-    triangle_array[9 ] = new TRIANGLE_POINTS(_3Dflattened_curr[7],_3Dflattened_curr[3],_3Dflattened_curr[5]);
-    triangle_array[10] = new TRIANGLE_POINTS(_3Dflattened_curr[0],_3Dflattened_curr[4],_3Dflattened_curr[2]);
-    triangle_array[11] = new TRIANGLE_POINTS(_3Dflattened_curr[6],_3Dflattened_curr[4],_3Dflattened_curr[2]);
+    for (int tri=0;tri < 24;tri++) {
+        arwingTriangleArray[tri].set(arwingFlattenedVertexPoints[arwing1Faces[tri][0]],arwingFlattenedVertexPoints[arwing1Faces[tri][1]],arwingFlattenedVertexPoints[arwing1Faces[tri][2]]);
+    }
+
 
     inc_radians();
 }
